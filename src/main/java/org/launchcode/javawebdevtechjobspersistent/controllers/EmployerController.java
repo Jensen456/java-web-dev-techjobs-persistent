@@ -1,6 +1,7 @@
 package org.launchcode.javawebdevtechjobspersistent.controllers;
 
 import org.launchcode.javawebdevtechjobspersistent.models.Employer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.Errors;
@@ -11,8 +12,10 @@ import java.util.Optional;
 
 @Controller
 @RequestMapping("employers")
-public class EmployerController {
+public class EmployerController<employerRepository> {
 
+    //@Autowired
+    private employerRepository
 
     @GetMapping("add")
     public String displayAddEmployerForm(Model model) {
@@ -27,17 +30,19 @@ public class EmployerController {
         if (errors.hasErrors()) {
             return "employers/add";
         }
-
-        return "redirect:";
+        employerRepository.save(newEmployer);
+        model.addAttribute("employers", employerRepository.findAll());
+        return "employers/index";
+        //return "redirect:";
     }
 
     @GetMapping("view/{employerId}")
     public String displayViewEmployer(Model model, @PathVariable int employerId) {
 
-        Optional optEmployer = null;
+        Optional optEmployer = employerRepository.findById(employerId);
         if (optEmployer.isPresent()) {
             Employer employer = (Employer) optEmployer.get();
-            model.addAttribute("employer", employer);
+            model.addAttribute("employers", employer);
             return "employers/view";
         } else {
             return "redirect:../";
